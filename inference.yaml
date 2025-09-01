@@ -1,0 +1,20 @@
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: predictor-model
+spec:
+  predictor:
+    # Use your own container image
+    containers:
+      - name: model
+        image: devopscube/predictor-model:1.0
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 8080
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+          limits:
+            cpu: "1"
+            memory: "1Gi"
