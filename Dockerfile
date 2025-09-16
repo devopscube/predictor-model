@@ -1,2 +1,3 @@
-FROM python:3.12-slim
+FROM alpine:latest
+WORKDIR /app
 COPY model/ ./model/
