@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: predictor-model-pvc
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: predictor-model-copy-job
+spec:
+  ttlSecondsAfterFinished: 10
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: model-writer
+        image: devopscube/predictor-model:1.0
+        command: [ "/bin/sh", "-c" ]
+        args:
+        - |
+          echo ">>> Copying model to PVC...";
+          cp -r /model/* /mnt/models/;
+          echo ">>> Verifying contents in PVC...";
+          ls -lh /mnt/models;
+          echo ">>> Verification complete. Job finished.";
+        volumeMounts:
+        - name: model-storage
+          mountPath: /mnt/models
+      volumes:
+      - name: model-storage
+        persistentVolumeClaim:
+          claimName: predictor-model-pvc
